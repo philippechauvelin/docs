@@ -1,0 +1,2658 @@
+openapi: 3.0.3
+servers:
+  - url: 'https://api.test.neobrain.io/{version}'
+    variables:
+      version:
+        enum:
+          - "v1"
+        default: "v1"
+info:
+  description: Neobrain API Documentation v1.0.0 - API based on OpenAPI Specification v3.
+  version: 1.0.0
+  title: SmartMobility API
+  contact:
+    name: API Support
+    email: support@neobrain.io
+    url: https://neobrain.io/api
+tags:
+  - name: User
+    description: Operations related to users
+  - name: Manager Profile
+    description: Operations related to a user manager profile
+  - name: Employee Profile
+    description: Operations related to a user employee profile
+  - name: Documents
+    description: Operations related to user documents
+  - name: Experiences
+    description: Operations related to user experiences
+  - name: Skills
+    description: Operations related to user skills
+  - name: Contracts
+    description: Operations related to contracts
+  - name: Document Types
+    description: Operations related to document types
+  - name: Entities
+    description: Operations related to entities
+  - name: Genders
+    description: Operations related to gender
+  - name: Job Descriptions
+    description: Operations related to job descriptions
+  - name: Job Description Status
+    description: Operations related to job description statuses
+  - name: Locales
+    description: Operations related to locales
+  - name: Additional Fields
+    description: Operations related to additional fields
+  - name: Roles
+    description: Operations related to role repositories
+  - name: Repositories
+    description: Operations related to job description repositories
+  - name: Trainings
+    description:  Operations related to trainings
+  - name: Training Documents
+    description: Operations related for documents attached to a training resource
+  - name: Training Skills
+    description: Operations related for skills attached to a training resource
+  - name: Training Organizations
+    description:  Operations related to training organizations
+  - name: Training Categories
+    description: Operations related to training categories
+  - name: Training Status
+    description: Operations related to training statuses
+paths:
+  /users:
+    get:
+      tags:
+        - User
+      summary: Retrieves a collection of user resources
+      description: Retrieves a collection of user resources with pagination support.
+      operationId: getUsersData
+      parameters:
+        - name: limit
+          in: query
+          description: The numbers of results to be displayed on a single page. Default is 10. Maximum value cannot be higher than 50.
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: The page number to be displayed when multiple pages are available
+          schema:
+            type: integer
+        - name: id
+          in: query
+          description: "Allows User resource filter by `id` and it can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value."
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          headers:
+            Pagination-Page:
+              description: Current page number
+              schema:
+                type: integer
+            Pagination-Pages:
+              description: Last page number
+              schema:
+                type: integer
+            Pagination-Limit:
+              description: Number of results displayed
+              schema:
+                type: integer
+            Pagination-Count:
+              description: Total number of results
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      security:
+        - ApiToken: []
+      
+    post:
+      tags:
+        - User
+      summary: Creates a new user resource
+      description: Creates a new user on the platform
+      operationId: createUser
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+            
+      security:
+        - ApiToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNew'
+
+  /users/{id}:
+    get:
+      tags:
+        - User
+      summary: Retrieves a user resource
+      description: Retrieves all available user attributes.
+      operationId: getUserAttributes
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      security:
+        - ApiToken: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+    patch:
+      tags:
+        - User
+      summary: Updates a user resource.
+      description: Update one or multiple user attributes.
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+      requestBody:
+        description: Attributes to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserNew'
+    
+    delete:
+      tags:
+        - User
+      summary: Removes a user resource.
+      description: Removes a user resource.
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      security:
+        - ApiToken: []
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /users/{id}/manager:
+    get:
+      tags:
+        - Manager Profile
+      summary: Retreives the user manager profile information
+      description: Retreives the user manager profile information
+      operationId: getUserManagerProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserManagerProfile'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    post:
+      tags:
+        - Manager Profile
+      summary: Creates a manager profile for the user
+      description: Creates a manager profile for the user
+      operationId: addUserManagerProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserManagerProfile'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserManagerProfileNew'
+      security:
+        - ApiToken: []
+
+    patch:
+      tags:
+        - Manager Profile
+      summary: Updates one or multiple attributes for the user manager profile
+      description: Updates one or multiple attributes for the user manager profile
+      operationId: updateUserManagerProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserManagerProfile'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserManagerProfileNew'
+      security:
+        - ApiToken: []
+  
+    delete:
+      tags:
+        - Manager Profile
+      summary: Removes the user manager profile
+      description: Removes the user manager profile
+      operationId: deleteUserManagerProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+  /users/{id}/employee:
+    get:
+      tags:
+        - Employee Profile
+      summary: Retreives the user employee profile information
+      description: Retreives the user employee profile information
+      operationId: getUserEmployeeProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEmployeeProfile'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    post:
+      tags:
+        - Employee Profile
+      summary: Creates a employee profile for the user
+      description: Creates a employee profile for the user
+      operationId: addUserEmployeeProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEmployeeProfile'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEmployeeProfileNew'
+      security:
+        - ApiToken: []
+
+    patch:
+      tags:
+        - Employee Profile
+      summary: Updates one or multiple attributes for the user employee profile
+      description: Updates one or multiple attributes for the user employee profile
+      operationId: updateUserEmployeeProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEmployeeProfile'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEmployeeProfileNew'
+      security:
+        - ApiToken: []
+    
+    delete:
+      tags:
+        - Employee Profile
+      summary: Delete the user employee profile
+      description: Delete the user employee profile
+      operationId: deleteUserEmployeeProfile
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: User resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+  /users/{id}/documents:
+    get:
+      tags:
+        - Documents
+      summary: Retreives a collection of documents for the user resource
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        content:
+          application/json:
+            schema:
+                items:
+                  $ref: '#/components/schemas/DocumentNew'
+      security:
+        - ApiToken: []
+
+  /users/{id}/documents/{documentId}:
+    get:
+      tags:
+        - Documents
+      summary: Display a specific document attributes for a user resource
+      description: Display a specific document attributes for a user resource
+      operationId: getDocumentProperty
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: documentId
+          in: path
+          description: Document resource identifier
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    patch:
+      tags:
+        - Documents
+      summary: Updates a specific document with one or multiple attributes from a user resource
+      description: Updates a specific document with one or multiple attributes from a user resource. File size cannot exceed 20 MB.
+      operationId: updateDocument
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier. It can be an **integer** or a **string** having the following format `x-EMPLOYEE_ID`, where *EMPLOYEE_ID* is a alpha numerical string and is related to `employeeId` field value.
+          required: true
+          schema:
+            type: string
+        - name: documentId
+          in: path
+          description: Document resource identifier
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentNew'
+      security:
+        - ApiToken: []
+
+    delete:
+      tags:
+        - Documents
+      summary: Removes a document resource.
+      description: Removes a document resource.
+      operationId: deleteDocument
+      parameters:
+        - name: id
+          in: path
+        200:
+          description: Success
+          headers:
+            Pagination-Page:
+              description: Current page number
+              schema:
+                type: integer
+            Pagination-Pages:
+              description: Last page number
+              schema:
+                type: integer
+            Pagination-Limit:
+              description: Number of results displayed
+              schema:
+                type: integer
+            Pagination-Count:
+              description: Total number of results
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobDescription'
+      security:
+        - ApiToken: []
+
+    post:
+      tags:
+        - Job Descriptions
+      summary: Creates a new job description resource
+      description: Creates a new job description resource
+      operationId: newTraining
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDescriptionDetail'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/JobDescriptionNew'
+      tags:
+        - Trainings
+      summary: Creates a new training resource
+      description: Creates a new training resource
+      operationId: newTraining
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDetail'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingNew'
+      security:
+        - ApiToken: []
+    
+  /trainings/{id}:
+    get:
+      tags:
+        - Trainings
+      summary: Retrieves a training list of attributes
+      description: Retrieves all available attributes for the requested resource
+      operationId: getTrainingDetail
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Resource identifier
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDetail'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    patch:
+      tags:
+        - Trainings
+      summary: Updates a Training resource.
+      description: Update one or multiple training attributes
+      operationId: updateTraining
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier.
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDetail'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+      requestBody:
+        description: Attributes to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingNew'
+    
+    delete:
+      tags:
+        - Trainings
+      summary: Removes a training resource.
+      description: Removes a training resource.
+      operationId: deleteTraining
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier.
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      security:
+        - ApiToken: []
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Training resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /trainings/{id}/documents:
+    get:
+      tags:
+        - Training Documents
+      summary: Displays a list of documents attached to a training resource
+      description: Displays a list of documents attached to a training resource
+      operationId: getTrainingDocs
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Resource identifier
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingDocument'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    post:
+      tags:
+        - Training Documents
+      summary: Allows uploading documents to a training resource
+      description: Up to 5 documents is allowed. File size cannot exceed 20 MB.
+      operationId: addTrainingDocs
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Resource identifier
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingDocumentNew'
+      security:
+        - ApiToken: []
+
+  /trainings/{id}/documents/{docId}:
+    get:
+      tags:
+        - Training Documents
+      summary: Displays a specific document attributes attached to a training resource
+      description: Displays a specific document attributes attached to a training resource
+      operationId: getTrainingDocAttributes
+      parameters:
+        - name: id
+          in: path
+          description: Training resource identifier
+          required: true
+          schema:
+            type: integer
+        - name: docId
+          in: path
+          description: Training document resource identifier
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDocument'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    patch:
+      tags:
+        - Training Documents
+      summary: Updates a specific document attached to a training resource.
+      description: Update a specific document attached to a training resource.
+      operationId: updateTrainingDocAttributes
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier.
+          required: true
+          schema:
+            type: integer
+        - name: docId
+          in: path
+          description: Training document resource identifier
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDocument'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        413:
+          description: File size exceed allowed size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+      requestBody:
+        description: Attributes to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingDocumentNew'
+    
+    delete:
+      tags:
+        - Training Documents
+      summary: Removes a training document resource.
+      description: Removes a training document resource.
+      operationId: deleteTrainingDocAttributes
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier.
+          required: true
+          schema:
+            type: integer
+        - name: docId
+          in: path
+          description: Training document resource identifier
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      security:
+        - ApiToken: []
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /trainings/{id}/skills:
+    get:
+      tags:
+        - Training Skills
+      summary: Retreives a collection of skills for the requested training
+      description: Retreives a collection of skills for the requested training
+      operationId: getTrainingSkills
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Resource identifier
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingSkill'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+  /trainings/categories:
+    get:
+      tags:
+        - Training Categories
+      summary: Retreives a collection of training categories available for your account.
+      description: Retreives a collection of categories available for your account.
+      operationId: getTrainingCategories
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingCategory'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    post:
+      tags:
+        - Training Categories
+      summary: Creates a new training category resource
+      description: Creates a new training category resource
+      operationId: addTrainingCategory
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingCategory'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingCategoryNew'
+      security:
+        - ApiToken: []
+
+  /trainings/categories/{id}:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+  
+  /trainings/organizations:
+    get:
+      tags:
+        - Training Organizations
+      summary: Retrieves a collection of training organizations available for your account.
+      description: Retrieves a collection of training organizations available for your account.
+      operationId: getTrainingOrganizations
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingOrganization'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+    post:
+      tags:
+        - Training Organizations
+      summary: Creates a new training organization resource
+      description: Creates a new training organization resource
+      operationId: addTrainingOrganization
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingOrganization'
+        400:
+          description: The request was invalid or cannot be otherwise served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingOrganizationNew'
+      security:
+        - ApiToken: []
+
+  /trainings/organizations/{id}:
+    get:
+      tags:
+        - Training Organizations
+      summary: Retrieves a organization list of attributes
+      description: Retrieves all available attributes for the requested resource
+      operationId: getTrainingOrganizationDetail
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: Resource identifier
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingOrganization'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+        description: Attributes to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingOrganizationNew'
+    
+    delete:
+      tags:
+        - Training Organizations
+      summary: Removes a training organization resource.
+      description: Removes a training organization resource.
+      operationId: deleteTrainingOrganization
+      parameters:
+        - name: id
+          in: path
+          description: Resource identifier.
+          required: true
+          schema:
+            type: integer
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      security:
+        - ApiToken: []
+      responses:
+        204:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        404:
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        500:
+          description: Interval Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+
+  /trainings/status:
+    get:
+      tags:
+        - Training Status
+      summary: Retrieves a collection of supported training statuses
+      description: Retrieves a collection of supported training statuses
+      operationId: getLocale
+      parameters:
+        - name: Accept-Language
+          in: header
+          description: Language identifier, using the ISO 639-1 specification. If none provided it will use the account default language. For additional info please access `/v1/locales`
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingStatus'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+      security:
+        - ApiToken: []
+
+components:
+  schemas:
+    User:
+      x-swagger-router-model: io.swagger.api.model.User
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        gender:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: john@example.com
+        secondaryEmail:
+          type: string
+          example: john.doe@example.com
+        phone:
+          type: string
+          example: 0033612343210
+        secondaryPhone:
+          type: string
+          example: 0033612343211
+        address:
+          type: string
+          example: 16 Rue de Triomphe
+        city:
+          type: string
+          example: Paris
+        zipcode:
+          type: string
+          example: 75015
+        country:
+          type: string
+          example: France
+        locale:
+          type: string
+          example: fr
+        birthday:
+          $ref: '#/components/schemas/Date'
+        photo:
+          type: string
+          example: https://domain.com/avatar.jpg
+        entity:
+          type: string
+          example: ACME Talent Management
+        businessUnit:
+          type: string
+          example: Operations
+        nationality:
+          type: string
+          example: French
+        seniority:
+          type: number
+          example: 6.5
+        status:
+          type: boolean
+          nullable: true
+          example: 1
+        employeeId:
+          type: string
+          example: ABC12345
+        managerId:
+          type: integer
+          example: 0
+        managerProfileId:
+          type: integer
+          example: 0
+        employeeProfileId:
+          type: integer
+          example: 0
+        job:
+          $ref: '#/components/schemas/Job'
+        additionalFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdditionalField'
+      type: object
+
+    UserNew:
+      x-swagger-router-model: io.swagger.api.model.UserNew
+      required:
+        - "firstName"
+        - "lastName"
+        - "email"
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        gender:
+          type: integer
+          nullable: true
+          example: 1
+          description: For accepted values please access `/v1/genders`
+        email:
+          type: string
+          example: john@example.com
+        secondaryEmail:
+          type: string
+          nullable: true
+          example: john.doe@example.com
+        phone:
+          type: string
+          nullable: true
+          example: 0033612343210
+        secondaryPhone:
+          type: string
+          nullable: true
+          example: 0033612343211
+        address:
+          type: string
+          nullable: true
+          example: 16 Rue de Triomphe
+        city:
+          type: string
+          nullable: true
+          example: Paris
+        zipcode:
+          type: string
+          nullable: true
+          example: 75015
+        country:
+          type: string
+          nullable: true
+          example: France
+        locale:
+          type: string
+          example: fr
+          description: Only accepts values available for your account. For available languges please access `/v1/locales`
+        birthday:
+          type: string
+          nullable: true
+          example: '1990-02-08'
+          description: Date format is `YYYY-MM-DD`
+        photo:
+          type: string
+          nullable: true
+          example: https://domain.com/avatar.jpg
+          description: It can accept image URL or "data" URL scheme usign the RFC-2397 specifications. If this attribute is not set it will default to `https://smartmobility.io/upload/profil.jpg`. Maximum file size is 5 MB.
+        entity:
+          type: string
+          nullable: true
+          example: ACME Talent Management
+          description: Check `/v1/entities` to see what existing names are present for your account.
+        businessUnit:
+          type: string
+          nullable: true
+          example: Operations
+        nationality:
+          type: string
+          nullable: true
+          example: French
+        seniority:
+          type: number
+          nullable: true
+          example: 6.5
+        status:
+          type: boolean
+          nullable: true
+          example: 1
+          description: If none provided it will default to status 1 (active)
+        employeeId:
+          type: string
+          nullable: true
+          example: ABC12345
+        additionalFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdditionalFieldNew'
+      type: object
+
+    UserManagerProfile:
+      x-swagger-router-model: io.swagger.api.model.UserManagerProfile
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+        managerId:
+          type: integer
+          example: 0
+          description: The Manager responsible for this profile
+        roleId:
+          type: integer
+          example: 0
+          description: The Manager role assigned. Please check `/v1/roles` for additional information.
+      type: object
+
+    UserManagerProfileNew:
+      x-swagger-router-model: io.swagger.api.model.UserManagerProfileNew
+      properties:
+        managerId:
+          type: integer
+          example: 0
+          nullable: true
+          description: The Manager responsible for this profile
+        roleId:
+          type: integer
+          example: 0
+          nullable: true
+          description: The Manager role to be assigned. Please check `/v1/roles` for additional information.
+      type: object
+
+    UserEmployeeProfile:
+      x-swagger-router-model: io.swagger.api.model.UserEmployeeProfile
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+        managerId:
+          type: integer
+          example: 0
+          description: The Manager responsible for this profile
+        contract:
+          type: string
+          example: 'CDD'
+      type: object
+
+    UserEmployeeProfileNew:
+      x-swagger-router-model: io.swagger.api.model.UserEmployeeProfileNew
+      properties:
+        managerId:
+          type: integer
+          example: 0
+          description: The Manager responsible for this profile
+        contract:
+          type: string
+          example: CDD
+          description:  Only accepts values available for your account. For available contract types please access `/v1/contracts`
+      type: object
+
+    Contract:
+      x-swagger-router-model: io.swagger.api.model.Contract
+      readOnly: true
+      properties:
+        id:
+          type: string
+          description: Type indentificator
+          example: CDD
+        name:
+          type: string
+          description: Human readable value
+          example: 'Contact à durée déterminée'
+      type: object
+
+    Date:
+      x-swagger-router-model: io.swagger.api.model.Date
+      readOnly: true
+      properties:
+        date:
+          type: string
+          description: Date having the format `YYYY-MM-DD` 
+          example: '2022-08-01'
+        timestamp:
+          type: string
+          description: Contains the date in ISO 8601 format
+          example: '2022-08-01T00:00:00+02:00'
+      type: object
+
+    DateTime:
+      x-swagger-router-model: io.swagger.api.model.DateTime
+      readOnly: true
+      properties:
+        date:
+          type: string
+          description: Date having the format `YYYY-MM-DD` 
+          example: '2022-08-01'
+        time:
+          type: string
+          description: Time having the format `HH:MM:SS`
+          example: '10:30:01'
+        timestamp:
+          type: string
+          description: Contains the date in ISO 8601 format
+          example: '2022-08-01T10:30:01+02:00'
+      type: object
+
+    Document:
+      x-swagger-router-model: io.swagger.api.model.Document
+      readOnly: true
+      required:
+        - name
+        - file
+      properties:
+        id:
+          type: integer
+          example: 0
+        name:
+          type: string
+          description: Document name
+          example: ACME Talent Management sample document
+        file:
+          type: string
+          description: Document URL
+          example: https://smartmobility.io/file-path.pdf
+        isPublic:
+          type: boolean
+          description: Document visibility
+          example: 1
+        createdAt:
+          description: Document creation timestamp
+          $ref: '#/components/schemas/DateTime'
+        signedAt:
+          description: Document signature date
+          $ref: '#/components/schemas/Date'
+        documentType:
+          description: Document type
+          $ref: '#/components/schemas/DocumentType'
+      type: object
+
+    DocumentNew:
+      x-swagger-router-model: io.swagger.api.model.DocumentNew
+      required:
+        - name
+        - file
+      properties:
+        name:
+          type: string
+          description: Document name
+          example: ACME Talent Management sample document
+        file:
+          type: string
+          description: Document URL / "data" URL scheme usign the RFC-2397 specifications
+          example: https://smartmobility.io/file-path.pdf
+        isPublic:
+          type: boolean
+          description: Document visibility
+          example: 1
+          nullable: true
+        signedAt:
+          type: string
+          description: Document signature date in the format `YYYY-MM-DD`
+          example: '2022-08-01'
+          nullable: true
+        documentTypeId:
+          type: integer
+          description: Only accepts values available for your account. For available document types please access `/v1/document_types`
+          example: 0
+          nullable: true
+      type: object
+    
+    DocumentType:
+      x-swagger-router-model: io.swagger.api.model.DocumentType
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          description: The document type reference
+          example: 43
+        name:
+          type: string
+          description: Human readable value
+          example: CV
+        category:
+          type: string
+          description: Document type category
+          example: Generic document
+        locale:
+          type: string
+          example: fr 
+      type: object
+
+    Entity:
+      x-swagger-router-model: io.swagger.api.model.Entity
+      readOnly: true
+      properties:
+        name:
+          type: string
+          description: Entity name
+          example: ACME Talent Management
+      type: object
+
+    Experience:
+      x-swagger-router-model: io.swagger.api.model.Experience
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+        name:
+          type: string
+          description: Experience name
+          example: Lead Product Owner
+        company:
+          type: string
+          example: ACME Talent Management
+        location:
+          type: string
+          example: 16 Rue de Triomphe
+        description:
+          type: string
+          description: Plain text experience description
+          example: Lorem ipsum dolor sit ament...
+        inProgress:
+          type: boolean
+          description: Indicates that the Experience does not have a `dateEnded` set
+          example: 0
+        dateStarted:
+          description: Experience start date
+          $ref: '#/components/schemas/Date'
+        dateEnded:
+          description: Experience end date
+          $ref: '#/components/schemas/Date'
+        duration:
+          type: string
+          description: Experience duration
+          example: 1 yr, 10 mths, 23 days
+      type: object
+
+    ExperienceNew:
+      x-swagger-router-model: io.swagger.api.model.ExperienceNew
+      required:
+        - name
+        - company
+      properties:
+        name:
+          type: string
+          description: Experience name
+          example: Lead Product Owner
+        company:
+          type: string
+          example: ACME Talent Management
+        location:
+          type: string
+          example: 16 Rue de Triomphe
+          nullable: true
+        description:
+          type: string
+          description: Plain text experience description
+          example: Lorem ipsum dolor sit ament...
+          nullable: true
+        dateStarted:
+          type: string
+          description: Experience start date in the format `YYYY-MM-DD`
+          example: '2000-01-15'
+        dateEnded:
+          type: string
+          description: Experience end date in the format `YYYY-MM-DD`
+          example: '2005-12-31'
+      type: object
+
+    Gender:
+      x-swagger-router-model: io.swagger.api.model.Gender
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          description: The gender identifier
+          example: 1
+        name:
+          type: string
+          description: Human readable value
+          example: 'Male'
+      type: object
+
+    Locale:
+      x-swagger-router-model: io.swagger.api.model.Locale
+      readOnly: true
+      properties:
+        id:
+          type: string
+          description: Language identifier, using the ISO 639-1 specification
+          example: fr
+        name:
+          type: string
+          description: Human readable value
+          example: 'Français'
+        default:
+          type: boolean
+          example: 1
+          description: Specify if the language is the default one
+      type: object
+
+    Skill:
+      x-swagger-router-model: io.swagger.api.model.Skill
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          description: Internal reference
+          example: 0
+        title:
+          type: string
+          description: Skill name
+          example: Customer Relationship Management (CRM)
+        type:
+          type: string
+          description: Describes the type of the skill
+          example: Hard Skill
+        motivation:
+          type: integer
+          description: Level of motivation
+          example: 0
+        level:
+          type: integer
+          description: Level of mastery
+          example: 0
+        recommandations:
+          type: integer
+          description: Endorsments received
+          example: 0
+        isLocked:
+          type: boolean
+          example: 1
+        isReferent:
+          type: boolean
+          example: 1
+      type: object
+
+    AdditionalField:
+      x-swagger-router-model: io.swagger.api.model.AdditionalField
+      readOnly: true
+      properties:
+        fieldId:
+          type: integer
+          description: Internal field reference
+          example: 0
+        externalFieldId:
+          type: string
+          description: External field reference
+          example: ABC12344
+        name:
+          type: string
+          description: Additional field label, using the default locale for the account. Check `/v1/locales` and `/v1/additional_fields/user` for additional info
+          example: Graduation day
+        type:
+          type: string
+          description: Field type
+          example: 'Date'
+        value:
+          type: string
+          description: Field value for the User
+          example: '2007-06-23'
+        isVisible:
+          type: boolean
+          example: 1
+          description: Current status for the field
+      type: object
+
+    AdditionalFieldNew:
+      x-swagger-router-model: io.swagger.api.model.AdditionalFieldNew
+      required:
+      - name
+      - type
+      description: Not providing any field reference (eg. `fieldId` and/or `externalFieldId`) or no match is made from the provided field reference(s), it will attempt to create a new additional field based on the attributes given.
+      properties:
+        fieldId:
+          type: integer
+          description: Internal field reference
+        externalFieldId:
+          type: string
+          description: External field reference
+        name:
+          type: string
+          description: Additional field label, using the default locale for the account. Check `/v1/locales` and `/v1/additional_fields/user` for additional info
+          example: Graduation day
+        type:
+          type: string
+          description: Field type. Can hold one of the following values - `Date`, `Select`, `Text`, `HTML`. Case sensitive
+          example: Date
+        value:
+          type: string
+          description: Field value for the User.
+          nullable: true
+          example: '2007-06-23'
+        isVisible:
+          type: boolean
+          example: 1
+          description: Current status for the field. If none provided it will default to status 1 (active)
+          nullable: true
+      type: object
+
+    AdditionalFieldResourceType:
+      x-swagger-router-model: io.swagger.api.model.AdditionalFieldResourceType
+      readOnly: true
+      properties:
+        type:
+          type: string
+          description: Resource identifier
+        description:
+          type: string
+          description: Additional information related to the resource
+      type: object
+
+    AdditionalFieldType:
+      x-swagger-router-model: io.swagger.api.model.AdditionalFieldType
+      readOnly: true
+      properties:
+        name:
+          type: string
+          description: Field label
+        type:
+          type: string
+          description: Field type. Can hold one of the following values - `Date`, `Select`, `Text`, `HTML`. Case sensitive
+          example: Select
+        values:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: This particular attribute is only available for the type `Select`
+        fieldId:
+          type: integer
+          description: Internal field reference
+          example: 0
+        externalFieldId:
+          type: string
+          description: External field reference
+        isVisible:
+          type: boolean
+          example: 1
+          description: Current status for the field
+      type: object
+
+    Job:
+      x-swagger-router-model: io.swagger.api.model.Job
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+          description: Internal reference
+        title:
+          type: string
+          description: Job title
+
+    JobDescription:
+      x-swagger-router-model: io.swagger.api.model.JobDescription
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+          description: Internal reference
+        image:
+          type: string
+          description: Image URL used for the cover
+        title:
+          type: string
+          description: Job description title
+        code:
+          type: string
+          description: Job description code reference
+        jobStatusId:
+          type: integer
+          description: Job description status. Please check `/v1/jobs/status` for additional informations
+        repositoryId:
+          type: integer
+          example: 0
+          description: Job description repository. Please check `/v1/repositories` for additional informations
+        createdAt:
+          description: Job description creation
+          $ref: '#/components/schemas/Date'
+        updatedAt:
+          description: Job description last update
+          $ref: '#/components/schemas/Date'
+
+    JobDescriptionDetail:
+      x-swagger-router-model: io.swagger.api.model.JobDescriptionDetail
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+          description: Internal reference
+        image:
+          type: string
+          description: Image URL used for the cover
+        title:
+          type: string
+          description: Job description title
+        code:
+          type: string
+          description: Job description code reference
+        jobStatusId:
+          type: integer
+          type: string
+        currency:
+          type: string
+          description: Currency code, usign the ISO 4217 specification.
+          example: EUR
+        duration:
+          type: string
+          description: Course duration. It is a combination, without space, from a numerical representation for the length of the course and an abbreviation for the period (h - hour, d - day, mo - month)
+          example: 1d
+        type:
+          type: integer
+          description: Training course type. Can hold one of the values 1 - Long, 2 - Short
+          example: 1
+        language:
+          type: string
+          description: Training course language, using the ISO 639-1 specification
+        location:
+          type: string
+        contact:
+          type: string
+        trainingOrganizationId:
+          type: integer
+          description: Training organization resource id. Please check `/v1/trainings/organizations` for additional details
+        trainingStatusId:
+          type: integer
+          description: Training status resource id. Please check `/v1/trainings/status` for additional details
+        trainingCategoryId:
+          type: integer
+          description: Training category resource id. Please check `/v1/trainings/categories` for additional details
+        externalLink:
+          type: string
+        description:
+          type: string
+        preRequirement:
+          type: string
+        objective:
+          type: string
+        audience:
+          type: string
+        modality:
+          type: string
+
+    TrainingNew:
+      x-swagger-router-model: io.swagger.api.model.TrainingNew
+      required:
+        - "title"
+        - "duration"
+      properties:
+        title:
+          type: string
+        image:
+          type: string
+          description: Image URL /  used for the cover
+        shortDescription:
+          type: string
+        currency:
+          type: string
+          description: Currency code, usign the ISO 4217 specification.
+          example: EUR
+        duration:
+          type: string
+          description: Course duration. It is a combination, without space, from a numerical representation for the length of the course and an abbreviation for the period (h - hour, d - day, mo - month)
+          example: 1d
+        type:
+          type: integer
+          description: Training course type. Can hold one of the values 1 - Long, 2 - Short
+          example: 1
+        language:
+          type: string
+          description: Training course language, using the ISO 639-1 specification
+        location:
+          type: string
+        contact:
+          type: string
+        trainingOrganizationId:
+          type: integer
+          description: Training organization resource id. Please check `/v1/trainings/organizations` for additional details
+        trainingStatusId:
+          type: integer
+          description: Training status resource id. Please check `/v1/trainings/status` for additional details
+        trainingCategoryId:
+          type: integer
+          description: Training category resource id. Please check `/v1/trainings/categories` for additional details
+        externalLink:
+          type: string
+        description:
+          type: string
+        preRequirement:
+          type: string
+        objective:
+          type: string
+        audience:
+          type: string
+        modality:
+          type: string
+
+    TrainingDocument:
+      x-swagger-router-model: io.swagger.api.model.TrainingDocument
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          example: 0
+          description: Internal reference
+        name:
+          type: string
+          description: Document title
+        file:
+          type: string
+          description: Document URL
+
+    TrainingDocumentNew:
+      x-swagger-router-model: io.swagger.api.model.TrainingDocumentNew
+      required:
+        - "name"
+        - "file"
+      properties:
+        name:
+          type: string
+          description: Document title
+        file:
+          type: string
+          description: Allows using a document URL or "data" URL scheme usign the RFC-2397 specifications. File size cannot exceed 20MB.
+
+    TrainingCategory:
+      x-swagger-router-model: io.swagger.api.model.TrainingCategory
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          description: Internal reference
+        name:
+          type: string
+
+    TrainingCategoryNew:
+      x-swagger-router-model: io.swagger.api.model.TrainingCategoryNew
+      required:
+        - "name"
+      properties:
+        name:
+          type: string
+
+    TrainingOrganization:
+      x-swagger-router-model: io.swagger.api.model.TrainingOrganization
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          description: Internal reference
+        name:
+          type: string
+        description:
+          type: string
+        phone:
+          type: string
+        fax:
+          type: string
+        website:
+          type: string
+        address:
+          type: string
+
+    TrainingOrganizationNew:
+      x-swagger-router-model: io.swagger.api.model.TrainingOrganizationNew
+      required:
+        - "name"
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        phone:
+          type: string
+        fax:
+          type: string
+        website:
+          type: string
+        address:
+          type: string
+          description: Limited to 500 characters
+    
+    TrainingSkill:
+      x-swagger-router-model: io.swagger.api.model.TrainingSkill
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          description: Internal reference
+        title:
+          type: string
+
+    TrainingStatus:
+      x-swagger-router-model: io.swagger.api.model.TrainingStatus
+      readOnly: true
+      properties:
+        id:
+          type: integer
+          description: Internal reference
+        name:
+          type: string
+        isVisible:
+          type: boolean
+
+  securitySchemes:
+    ApiToken:
+      type: http
+      scheme: bearer
+      description: API token for the Authorization header parameter.
