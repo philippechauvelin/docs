@@ -27,15 +27,15 @@
   },
   "tabs": [
     {
-      "name": "API Reference",
-      "url": "api-reference"
+      "name": "API",
+      "url": "api"
     }
   ],
   "navigation": [
     {
       "group": "API Documentation",
       "pages": [
-        "api-reference/introduction"
+        "api/documentation"
       ]
     }
   ]
